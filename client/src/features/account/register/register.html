@@ -1,17 +1,135 @@
 <div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6  rounded-lg shadow-lg">
     <div class="card-title justify-center text-3xl text-primary"> Sign Up</div>
     <div class="card-body w-full">
-        <form #registerForm="ngForm" class="flex flex-col gap-4 w-full" (ngSubmit)="register()">
-            <input type="text" class="input w-full" name="email" [(ngModel)]="creds.email" placeholder="Email">
-            <input type="text" class="input w-full" name="displayName" [(ngModel)]="creds.displayName"
-                placeholder="Name">
-            <input type="password" class="input w-full" name="password" [(ngModel)]="creds.password"
-                placeholder="Password">
+
+        <ul class="steps">
+            <li class="step step-primary">Credentials</li>
+            <li class="step" [class.step-primary]="currentStep() ===2">Profile</li>
+        </ul>
+
+        @if (currentStep() ===1) {
+        <form [formGroup]="credentialForm" class="flex flex-col gap-4 w-full steps">
+            <label class="floating-label mt-2">
+                <span>Email</span>
+                <input type="email" class="input w-full" formControlName="email"
+                    [class.input-error]="credentialForm.controls['email'].invalid && credentialForm.controls['email'].touched"
+                    [class.input-success]="credentialForm.controls['email'].valid && credentialForm.controls['email'].touched"
+                    placeholder="Email">
+                @if(credentialForm.controls['email'].invalid && credentialForm.controls['email'].touched){
+                <div class="text-left text-error px-3 text-xs">Email is required</div>
+                }@if(credentialForm.controls['email'].hasError('email') && credentialForm.controls['email'].touched){
+                <div class="text-left text-error px-3 text-xs">invalid Email</div>
+                }
+            </label>
+
+            <label class="floating-label">
+                <span>Display Name</span>
+                <input class="input w-full"
+                    [class.input-error]="credentialForm.controls['displayName'].invalid && credentialForm.controls['displayName'].touched"
+                    [class.input-success]="credentialForm.controls['displayName'].valid && credentialForm.controls['displayName'].touched"
+                    formControlName="displayName" placeholder="Display Name">
+                @if(credentialForm.controls['displayName'].invalid && credentialForm.controls['displayName'].touched){
+                <div class="text-left text-error px-3 text-xs">Display name is required</div>
+                }
+            </label>
+
+            <label class=" floating-label">
+                <span>Password</span>
+                <input type="password" class="input w-full" formControlName="password"
+                    [class.input-error]="credentialForm.controls['password'].invalid && credentialForm.controls['password'].touched"
+                    [class.input-success]="credentialForm.controls['password'].valid && credentialForm.controls['password'].touched"
+                    placeholder="Password">
+                @if(credentialForm.controls['password'].invalid && credentialForm.controls['password'].touched){
+                <div class="text-left text-error px-3 text-xs">Password is required</div>
+                }@if(credentialForm.controls['password'].hasError('minlength')){
+                <div class="text-left text-error px-3 text-xs">Must be at least 4 characters</div>
+                }@if(credentialForm.controls['password'].hasError('maxlength')){
+                <div class="text-left text-error px-3 text-xs">Must be at least 8 characters</div>
+                }
+            </label>
+
+            <label class="floating-label">
+                <span>Confirm Password</span>
+                <input type="password" class="input w-full" formControlName="confirmPassword"
+                    [class.input-error]="credentialForm.controls['confirmPassword'].invalid && credentialForm.controls['confirmPassword'].touched"
+                    [class.input-success]="credentialForm.controls['confirmPassword'].valid && credentialForm.controls['confirmPassword'].touched"
+                    placeholder="Confirm Password">
+                @if(credentialForm.get('confirmPassword')?.hasError('passwordMismatch')) {
+                <div class="text-left text-error px-3 text-xs">Password do not match</div>
+                }
+            </label>
 
             <div class="flex items-center justify-end gap-3">
                 <button class="btn" (click)="cancel()" type="button">Cancel</button>
-                <button class="btn btn-primary" type="submit">Register</button>
+                <button class="btn btn-primary text-secondary" (click)="nextStep()" [disabled]="!credentialForm.valid"
+                    type="button">Next</button>
             </div>
         </form>
+        }
+        @if (currentStep()===2) {
+        <form [formGroup]="profileForm" class="flex flex-col w-full gap-4 steps">
+            <div>Profile Form here</div>
+            <div class="flex items-center gap-4">
+                <div class="font-semibold"> Gender: </div>
+                <label class="flex gap-3 items-center">
+                    <span>Male</span>
+                    <input type="radio" formControlName="gender" value="male" class="radio radio-primary">
+                </label>
+                <label class="flex gap-3 items-center">
+                    <span>Female</span>
+                    <input type="radio" formControlName="gender" value="female" class="radio radio-primary">
+                </label>
+            </div>
+
+            <label class="floating-label mt-2">
+                <span>Date of Birth</span>
+                <input type="date" [max]="getMaxDate()" class="input w-full" formControlName="dateOfBirth"
+                    [class.input-error]="profileForm.controls['dateOfBirth'].invalid && profileForm.controls['dateOfBirth'].touched"
+                    [class.input-success]="profileForm.controls['dateOfBirth'].valid && profileForm.controls['dateOfBirth'].touched"
+                    placeholder="Date of Birth">
+                @if(profileForm.controls['dateOfBirth'].invalid && profileForm.controls['dateOfBirth'].touched){
+                <div class="text-left text-error px-3 text-xs">Date Of Birth is required</div>
+                }
+            </label>
+
+            <label class="floating-label mt-2">
+                <span>City</span>
+                <input type="text" class="input w-full" formControlName="city"
+                    [class.input-error]="profileForm.controls['city'].invalid && profileForm.controls['city'].touched"
+                    [class.input-success]="profileForm.controls['city'].valid && profileForm.controls['city'].touched"
+                    placeholder="City">
+                @if(profileForm.controls['city'].invalid && profileForm.controls['city'].touched){
+                <div class="text-left text-error px-3 text-xs">City is required</div>
+                }
+            </label>
+
+            <label class="floating-label mt-2">
+                <span>Country</span>
+                <input type="text" class="input w-full" formControlName="country"
+                    [class.input-error]="profileForm.controls['country'].invalid && profileForm.controls['country'].touched"
+                    [class.input-success]="profileForm.controls['country'].valid && profileForm.controls['country'].touched"
+                    placeholder="Country">
+                @if(profileForm.controls['country'].invalid && profileForm.controls['gender'].touched){
+                <div class="text-left text-error px-3 text-xs">Country is required</div>
+                }
+            </label>
+            <div class="flex items-center justify-end gap-3">
+                <button class="btn" (click)="prevStep()" type="button">Back</button>
+                <button class="btn btn-primary text-secondary" (click)="register()" [disabled]="!profileForm.valid"
+                    type="button">Register</button>
+            </div>
+        </form>
+        }
     </div>
+
+    @if (validationErrors().length>0) {
+    <div class="mt-5 flex bg-gray-200 rounded-2xl w-1/2 p-3 mx-auto">
+        <ul class="flex-col text-error space-y-1">
+            @for (error of validationErrors(); track $index) {
+            <li>{{error}}</li>
+            }
+        </ul>
+    </div>
+
+    }
 </div>
