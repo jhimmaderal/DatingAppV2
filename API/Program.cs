@@ -23,7 +23,7 @@ builder.Services.AddCors(); // Add Cors for HTTP Request
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings")); //Getting in Program.cs
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings")); //Getting in AppSetting.cs
 
 // Token Injection
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
